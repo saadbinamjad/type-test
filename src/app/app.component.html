@@ -1,3 +1,27 @@
-<h1>
-  {{title}}
-</h1>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Narrow Jumbotron Template for Bootstrap</title>
+  </head>
+
+  <body>
+    <form [formGroup]="form" novalidate>
+    <div class="container">
+      <div class="jumbotron">
+        <h1 class="display-3">Type Test</h1>
+        <h4 *ngIf="!end"class="display-3">Start: 00:{{ tick || '00'}} s</h4>
+        <p class="lead">{{ text }}</p>
+        <textarea *ngIf="end===false" (keyup)="onKey($event)"class="form-control" formControlName="text" rows="4" cols="50" id="inputEmail" class="form-control" placeholder="Start Test" required autofocus></textarea>
+        <h3 class="display-3" style="color:red" *ngIf="error">Try again</h3> 
+        <h3 class="display-3" style="color:green" *ngIf="end">Test finished, WPM: {{wpm }} words/min</h3> 
+      </div>
+
+      <div class="container">
+         <button (click)="changeText()" class="btn btn-lg btn-primary btn-block" type="reset">Restart</button>
+      </div> <!-- /container -->
+
+    </div> <!-- /container -->
+    </form>
+    </body>
+</html>
