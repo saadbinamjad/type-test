@@ -14,20 +14,20 @@ import { TimerObservable } from "rxjs/observable/TimerObservable";
 
 export class AppComponent {
 
-  private text: string;
-  private form: FormGroup;
-  private index: number = 0;
-  private error: any;
-  private end: boolean = false;
-  private tick: any = null;
-  private subscription: Subscription;
-  private totalTime: any;
-  private countTypedEntries: number = 0;
-  private wpm: number;
-  private uncountedErrors: number = 0;
-  private accuracy: number;
-  timer: any;
-  subject = new Subject();
+  public text: string;
+  public  form: FormGroup;
+ public index: number = 0;
+  public error: any;
+  public end: boolean = false;
+  public tick: any = null;
+  public subscription: Subscription;
+  public totalTime: any;
+  public countTypedEntries: number = 0;
+  public wpm: number;
+  public uncountedErrors: number = 0;
+  public accuracy: number;
+  public timer: any;
+  public subject = new Subject();
 
   ngOnInit() {
     this.initForm();
@@ -87,7 +87,7 @@ export class AppComponent {
 
   }
 
-  private changeText() {
+  public changeText() {
     this.resetAllValues();
     this.initForm();
     this.initText();
