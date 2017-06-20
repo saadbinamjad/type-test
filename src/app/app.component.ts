@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TEXTS } from './mock-texts';
 import { Text } from './text.class';
-import {Subscription} from "rxjs";
-import {TimerObservable} from "rxjs/observable/TimerObservable";
+import { Subscription } from "rxjs";
+import { TimerObservable } from "rxjs/observable/TimerObservable";
 
 
 @Component({
@@ -14,91 +14,85 @@ import {TimerObservable} from "rxjs/observable/TimerObservable";
 
 export class AppComponent {
 
-  text: string;
-  form : FormGroup;
-  typedText: String;
-  index: number = 0;
-  value: any;
-  error: any;
-  textIndex: number = 1;
-  end: boolean = false;
-  private today: number;
+  private text: string;
+  private form: FormGroup;
+  private index: number = 0;
+  private error: any;
+  private end: boolean = false;
   private tick: any = null;
   private subscription: Subscription;
-  totalTime: any;
-  countTypeEntries : number = 0;
-  wpm: number;
-  uncountedErrors: number= 0;
+  private totalTime: any;
+  private countTypedEntries: number = 0;
+  private wpm: number;
+  private uncountedErrors: number = 0;
+  private accuracy: number;
 
-  ngOnInit(){
-   this.today = Date.now();
-
-  
- 
+  ngOnInit() {
     this.initForm();
     this.initText();
-}
+  }
 
-private initForm(){
-  this.form = new FormGroup ({
-    givenText: new FormControl(),
-    text: new FormControl()
-  });
-
-}
-
-private initText(){
-  const text = this.getTexts();
-  this.text = text[0].text;
-}
-
-private onKey(event: any) {
- 
- this.countTypeEntries ++;
-    if(!this.tick){
- let timer = TimerObservable.create(1000, 1000);
-    this.subscription = timer.subscribe(t => {
-      this.tick = t + 2;
-      if(t < 10){
-        this.tick = `0${t}`;
-      }
+  private initForm() {
+    this.form = new FormGroup({
+      text: new FormControl()
     });
+  }
+
+  private resetAllValues() {
+    this.stopTimer();
+    this.index = 0;
+    this.end = false;
+    this.uncountedErrors = 0;
+    this.countTypedEntries = 0;
+  }
+
+  private stopTimer() {
+    this.totalTime = 0;
+    this.tick = 0;
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
-   
-
-  if (event.which === 8) {
-   this.index --;
-   this.countTypeEntries --;
-   this.matchText(event.target.value);
+  }
+  private initText() {
+    const text = this.getTexts();
+    const randomNumberWithinRange = Math.random() * (text.length - 0) + 0;
+    const randomIndex = parseInt(JSON.stringify(randomNumberWithinRange), 10);
+    this.text = text[randomIndex].text;
   }
 
-  if(event.which === 16) {
-    this.countTypeEntries --;
-    return false;
+  private onKey(event: any) {
+
+    this.countTypedEntries++;
+
+    if (!this.tick) {
+      let timer = TimerObservable.create(1000, 1000);
+      this.subscription = timer.subscribe(t => {
+        this.tick = t + 2;
+      });
+    }
+
+    if (event.which === 8) {
+      this.index--;
+      this.countTypedEntries--;
+      this.matchText(event.target.value);
+    }
+
+    if (event.which === 16) {
+      this.countTypedEntries--;
+      return false;
+    }
+
+    this.matchText(event.target.value);
+
   }
 
-  this.matchText(event.target.value);
-
+  private changeText() {
+    this.resetAllValues();
+    this.initForm();
+    this.initText();
   }
 
-private changeText() {
-  if(this.textIndex === 4){
-    this.textIndex= 1;
-  }
-  this.initForm();
-  this.index = 0;
-  const text = this.getTexts();
-  this.text = text[this.textIndex].text;
-  this.textIndex ++;
-  this.end = false;
-  this.totalTime = 0;
-  this.subscription.unsubscribe();
-  this.tick = 0;
-  this.uncountedErrors = 0;
-
-}
-
- private getTexts(): Text[] {
+  private getTexts(): Text[] {
     return TEXTS;
   }
 
@@ -107,43 +101,36 @@ private changeText() {
     const splitGivenText = this.text.split("");
     const splitUserText = value.split("");
 
-   
-  
-    if(!splitGivenText) {
+    if (!splitGivenText) {
       return false;
     }
-    
-    if(splitUserText[this.index] == splitGivenText[this.index]) {
+
+    if (splitUserText[this.index] == splitGivenText[this.index]) {
       this.error = false;
-      this.index ++;
-       if(splitGivenText.length === this.index){
-       this.end = true;
-       this.totalTime = this.tick;
-       this.calculateWPM();
-       this.subscription.unsubscribe();
+      this.index++;
+      if (splitGivenText.length === this.index) {
+        this.end = true;
+        this.totalTime = this.tick;
+        this.calculateWPM();
+      } else {
+        this.end = false;
+      }
     } else {
-      this.end = false;
-    }
-    } else {
-      this.uncountedErrors ++;
+      this.uncountedErrors++;
       this.error = true;
-      
     }
-
-
   }
 
-  calculateWPM(){
-        
-       const totalTime = this.totalTime / 60;
-       const grossWPM = (this.countTypeEntries / 5)/ totalTime;
-       console.log(this.countTypeEntries);
-       const errorRate = this.uncountedErrors/totalTime;
-       console.log(this.uncountedErrors);
-       this.wpm = Math.abs(grossWPM - errorRate);
-
- 
+  private calculateWPM() {
+    const totalTime = this.totalTime / 60;
+    const grossWPM = ((this.countTypedEntries / 5) / totalTime);
+    console.log(this.countTypedEntries);
+    const errorRate = this.uncountedErrors / totalTime;
+    console.log(this.uncountedErrors)
+    this.accuracy = 100 - ((this.uncountedErrors / this.countTypedEntries) * 100);
+    this.wpm = Math.abs(grossWPM - errorRate);
   }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
