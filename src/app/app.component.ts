@@ -16,7 +16,7 @@ export class AppComponent {
 
   public text: string;
   public  form: FormGroup;
- public index: number = 0;
+  public index: number = 0;
   public error: any;
   public end: boolean = false;
   public tick: any = null;
@@ -36,7 +36,7 @@ export class AppComponent {
 
   private initForm() {
     this.form = new FormGroup({
-      text: new FormControl()
+      text: new FormControl(null)
     });
   }
 
@@ -52,6 +52,7 @@ export class AppComponent {
     this.uncountedErrors = 0;
     this.countTypedEntries = 0;
     this.text = null;
+    this.wpm = null;
   }
 
 
@@ -111,7 +112,7 @@ export class AppComponent {
       this.index++;
       if (splitGivenText.length === this.index) {
         this.end = true;
-        this.totalTime = this.tick;
+        this.totalTime = this.tick / 60;
         this.calculateWPM();
       } else {
         this.end = false;
@@ -123,9 +124,8 @@ export class AppComponent {
   }
 
   private calculateWPM() {
-    const totalTime = this.totalTime / 60;
-    const grossWPM = ((this.countTypedEntries / 5) / totalTime);
-    const errorRate = this.uncountedErrors / totalTime;
+    const grossWPM = ((this.countTypedEntries / 5) / this.totalTime);
+    const errorRate = this.uncountedErrors / this.totalTime;
     this.accuracy = 100 - ((this.uncountedErrors / this.countTypedEntries) * 100);
     this.wpm = Math.abs(grossWPM - errorRate);
   }
