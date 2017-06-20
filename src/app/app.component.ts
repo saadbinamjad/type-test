@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TEXTS } from './mock-texts';
 import { Text } from './text.class';
-import { Subscription } from "rxjs";
+import { Subscription, Subject } from "rxjs";
 import { TimerObservable } from "rxjs/observable/TimerObservable";
 
 
@@ -26,6 +26,8 @@ export class AppComponent {
   private wpm: number;
   private uncountedErrors: number = 0;
   private accuracy: number;
+  timer: any;
+  subject = new Subject();
 
   ngOnInit() {
     this.initForm();
@@ -39,20 +41,20 @@ export class AppComponent {
   }
 
   private resetAllValues() {
-    this.stopTimer();
+    this.totalTime = null;
+    this.tick = 0;
+    this.subject.next();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
     this.index = 0;
     this.end = false;
     this.uncountedErrors = 0;
     this.countTypedEntries = 0;
+    this.text = null;
   }
 
-  private stopTimer() {
-    this.totalTime = 0;
-    this.tick = 0;
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
+
   private initText() {
     const text = this.getTexts();
     const randomNumberWithinRange = Math.random() * (text.length - 0) + 0;
@@ -66,7 +68,7 @@ export class AppComponent {
 
     if (!this.tick) {
       let timer = TimerObservable.create(1000, 1000);
-      this.subscription = timer.subscribe(t => {
+      this.subscription = timer.takeUntil(this.subject).subscribe(t => {
         this.tick = t + 2;
       });
     }
@@ -74,7 +76,6 @@ export class AppComponent {
     if (event.which === 8) {
       this.index--;
       this.countTypedEntries--;
-      this.matchText(event.target.value);
     }
 
     if (event.which === 16) {
@@ -124,15 +125,14 @@ export class AppComponent {
   private calculateWPM() {
     const totalTime = this.totalTime / 60;
     const grossWPM = ((this.countTypedEntries / 5) / totalTime);
-    console.log(this.countTypedEntries);
     const errorRate = this.uncountedErrors / totalTime;
-    console.log(this.uncountedErrors)
     this.accuracy = 100 - ((this.uncountedErrors / this.countTypedEntries) * 100);
     this.wpm = Math.abs(grossWPM - errorRate);
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.subject.unsubscribe();
   }
 }
 

@@ -11,8 +11,8 @@
     <div class="container">
       <div class="jumbotron">
         <h1 class="display-3">Type Test</h1>
-        <h4 *ngIf="!end && tick" class="display-3">Start: 00:{{ tick | number: '2.0-0' }} s</h4>
-        <h4 *ngIf="!end && !tick" class="display-3">Start: 00:00 s</h4>
+        <h4 *ngIf="!end && tick" class="display-3">Start: {{ tick | number: '2.0-0' }} s</h4>
+        <h4 *ngIf="!end && !tick" class="display-3">Start: 00 s</h4>
         <p class="lead">{{ text }}</p>
         <textarea *ngIf="end===false" (keyup)="onKey($event)" class="form-control" formControlName="text" rows="4" cols="50" id="inputEmail"
           class="form-control" placeholder="Start Test" required autofocus></textarea>
